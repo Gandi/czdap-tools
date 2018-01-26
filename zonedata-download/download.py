@@ -6,6 +6,7 @@ import json
 import sys
 from urlparse import urlparse
 import os
+import cgi
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -61,13 +62,16 @@ for url in urls:
               stream=True)
     logging.info("Fetching data from %s" % url)
     if r.status_code == 200:
-        parsed_url = urlparse(r.url)
-        filename = os.path.basename(parsed_url.path)
+        _, c = cgi.parse_header(r.headers['content-disposition'])
+        filename = c['filename']
+        if filename == "":
+            parsed_url = urlparse(r.url)
+            filename = os.path.basename(parsed_url.path) + '.txt.gz'
         directory = './zonefiles'
 
         if not os.path.exists(directory):
             os.makedirs(directory)
-        path = directory + '/' + filename + '.txt.gz'
+        path = directory + '/' + filename
         with open(path, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
