@@ -56,17 +56,20 @@ except:
 
 logging.info('%d files to get', len(urls))
 
+def get_filename(response):
+    _, c = cgi.parse_header(r.headers['content-disposition'])
+    filename = c['filename']
+    if filename == "":
+        parsed_url = urlparse(r.url)
+        filename = os.path.basename(parsed_url.path) + '.txt.gz'
+    return filename
+
 # Grab each file.
 for url in urls:
-    r = s.get(config['base_url'] + url,
-              stream=True)
+    r = s.get(config['base_url'] + url, stream=True)
     logging.info("Fetching data from %s" % url)
     if r.status_code == 200:
-        _, c = cgi.parse_header(r.headers['content-disposition'])
-        filename = c['filename']
-        if filename == "":
-            parsed_url = urlparse(r.url)
-            filename = os.path.basename(parsed_url.path) + '.txt.gz'
+        filename = get_filename(r)
         directory = './zonefiles'
 
         if not os.path.exists(directory):
