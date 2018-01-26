@@ -1,4 +1,6 @@
 .DS_Store
 config.json
 /credentials-decrypt/czdap.private.key
+/zonedata-download/czdap.private.key
+
 zonefiles
